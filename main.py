@@ -1,11 +1,12 @@
+import random
 import datetime as dt 
 from collections import defaultdict
-import random
+
 
 class Patient:    
     def __init__(self, first_name, last_name, birth_year, symptoms):
         """
-        Parameters
+        Parameters 
         ----------
         first_name : str
             as in title
@@ -31,8 +32,12 @@ class Doctor:
     def __init__(self, first_name, last_name, specialty):
         self.first_name = first_name
         self.last_name = last_name
-        self.specialty = specialty        
+        self.specialty = specialty  
         
+    @property
+    def full_name(self):
+        return f"{self.first_name}_{self.last_name}"
+    
         
 class Illness:
     def __init__(self, patient):
@@ -77,7 +82,6 @@ class Register:
         
     def add_visit(self, patient):
         doctor = self.pick_doctor(patient)
-        print(doctor.first_name)
         visit_date = self.set_date()
         if visit_date in self.schedule[doctor.first_name + "_" + doctor.last_name].keys():
             print("Data zajeta")
@@ -92,17 +96,26 @@ class Register:
             if demanded_specialty == doc.specialty:
                 return doc
         
-    @staticmethod
-    def set_date():
-        visit_date_str = f"2020-10-{random.randrange(1,2)}:{random.randrange(8,15)}" # input("Zaproponuj pacjentowi date w konwencji rok-miesiac-dzien:godzina: ")
+    #@staticmethod
+    def set_date(self, opt: str = "Auto"):
+        if opt == "Manual":
+            visit_date_str = input("Zaproponuj pacjentowi date w konwencji rok-miesiac-dzien:godzina: ")
+        else:
+            visit_date_str = f"2020-10-{random.randrange(1,2)}:{random.randrange(8,15)}"         
         try:
             visit_date = dt.datetime.strptime(visit_date_str,"%Y-%m-%d:%H")
         except ValueError: 
-            visit_date = set_date()
+            visit_date = self.set_date(opt)
         return visit_date
     
-    #TODO usuniecie wizyty
- 
+    def pop_visit(self, doctor):
+        print(f"Wybrano doktor: {doctor.full_name}")
+        visit_date = self.set_date("Manual")
+        if visit_date in self.schedule[doctor.full_name].keys():
+            self.schedule[doctor.full_name].pop(visit_date)
+        else:
+            print("Data pusta")
+        return  
     
 #######################   
 #######################         
@@ -131,7 +144,7 @@ doctors.append(Doctor("Marcin", "Sercowy", "Cardiology"))               # kardio
 doctors.append(Doctor("Sebastian", "Gróboskurny", "Dermatology"))       # dermatolog
 doctors.append(Doctor("Ewa", "Mniejszo", "Pediatrics"))                 # pediatra
 doctors.append(Doctor("Alicja", "Kościejna", "Orthopeadics"))           # ortopeda
-doctors.append(Doctor("Andriej", "Bykow", "Internists"))           # internista
+doctors.append(Doctor("Andriej", "Bykow", "Internists"))                # internista
 
 
 
